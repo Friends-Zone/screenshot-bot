@@ -109,9 +109,20 @@ class Utilities:
             time_to_complete = round(((total - current) / speed))
             time_to_complete = Utilities.TimeFormatter(time_to_complete)
             progressbar = "[{0}{1}]".format(
-                ''.join([f"{BLACK_MEDIUM_SMALL_SQUARE}" for i in range(math.floor(percentage / 10))]),
-                ''.join([f"{WHITE_MEDIUM_SMALL_SQUARE}" for i in range(10 - math.floor(percentage / 10))])
+                ''.join(
+                    [
+                        f"{BLACK_MEDIUM_SMALL_SQUARE}"
+                        for _ in range(math.floor(percentage / 10))
+                    ]
+                ),
+                ''.join(
+                    [
+                        f"{WHITE_MEDIUM_SMALL_SQUARE}"
+                        for _ in range(10 - math.floor(percentage / 10))
+                    ]
+                ),
             )
+
             current_message = f"**Downloading:** {round(percentage, 2)}%\n\n"
             current_message += f"{progressbar}\n\n"
             current_message += f"{HOLLOW_RED_CIRCLE} **Speed**: {Utilities.humanbytes(speed)}/s\n\n"
@@ -136,7 +147,7 @@ class Utilities:
         while size > power:
             size /= power
             n += 1
-        return str(round(size, 2)) + " " + Dic_powerN[n] + 'B'
+        return f"{str(round(size, 2))} {Dic_powerN[n]}B"
 
     @staticmethod
     def TimeFormatter(seconds: int) -> str:
@@ -213,8 +224,7 @@ class Utilities:
         out = out.decode().strip()
         if not out:
             return err.decode()
-        duration = round(float(out))
-        if duration:
+        if duration := round(float(out)):
             return duration
         return "No duration!"
 
@@ -253,7 +263,7 @@ class Utilities:
     @staticmethod
     def get_watermark_coordinates(pos, width, height):
         def gcd(m, n):
-            return m if not n else gcd(n, m % n)
+            return gcd(n, m % n) if n else m
 
         def ratio(x, y):
             d = gcd(x, y)
@@ -297,7 +307,7 @@ class Utilities:
         screenshot_mode = await db.get_screenshot_mode(chat_id)
         font_size = await db.get_font_size(chat_id)
         mode_txt = "Document" if as_file else "Image"
-        wm_txt = watermark_text if watermark_text else "No watermark exists!"
+        wm_txt = watermark_text or "No watermark exists!"
         genmode = "Equally spaced" if screenshot_mode == 0 else "Random screenshots"
 
         sv_btn = [
@@ -309,9 +319,10 @@ class Utilities:
             InlineKeyboardButton(f"{Config.COLORS[watermark_color_code]}", "set+wc")
         ]
         fs_btn = [
-            InlineKeyboardButton(f"𝔸𝕒 Watermark Font Size", "rj"),
-            InlineKeyboardButton(f"{Config.FONT_SIZES_NAME[font_size]}", "set+fs")
+            InlineKeyboardButton("𝔸𝕒 Watermark Font Size", "rj"),
+            InlineKeyboardButton(f"{Config.FONT_SIZES_NAME[font_size]}", "set+fs"),
         ]
+
         wp_btn = [
             InlineKeyboardButton("🎭 Watermark Position", "rj"),
             InlineKeyboardButton(f"{Config.POSITIONS[watermark_position]}", "set+wp")
@@ -355,7 +366,12 @@ class Utilities:
                 i_keyboard = []
             if i == 10:
                 btns.append(i_keyboard)
-        btns.append([InlineKeyboardButton("Manual Screenshots", "mscht")])
-        btns.append([InlineKeyboardButton("Trim Video", "trim")])
-        btns.append([InlineKeyboardButton("Get Media Information", "mi")])
+        btns.extend(
+            (
+                [InlineKeyboardButton("Manual Screenshots", "mscht")],
+                [InlineKeyboardButton("Trim Video", "trim")],
+                [InlineKeyboardButton("Get Media Information", "mi")],
+            )
+        )
+
         return btns
